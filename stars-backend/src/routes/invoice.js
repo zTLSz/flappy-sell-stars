@@ -6,58 +6,63 @@ import { getPackageById } from "../packages.js";
 const AUTH_MAX_AGE_SECONDS = 5 * 60;
 
 function validateInitData(initDataRaw) {
-  if (!initDataRaw || typeof initDataRaw !== "string") {
-    return { ok: false, error: "initData is required" };
-  }
-
-  const params = new URLSearchParams(initDataRaw);
-  const hash = params.get("hash");
-  const authDateRaw = params.get("auth_date");
-  const userRaw = params.get("user");
-
-  if (!hash || !authDateRaw || !userRaw) {
-    return { ok: false, error: "Invalid initData payload" };
-  }
-
-  const authDate = Number(authDateRaw);
-  const nowSeconds = Math.floor(Date.now() / 1000);
-  if (!Number.isFinite(authDate) || nowSeconds - authDate > AUTH_MAX_AGE_SECONDS) {
-    return { ok: false, error: "initData expired" };
-  }
-
-  const dataCheckString = Array.from(params.entries())
-    .filter(([key]) => key !== "hash")
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}=${value}`)
-    .join("\n");
-
-  const secretKey = crypto
-    .createHmac("sha256", "WebAppData")
-    .update(config.botToken)
-    .digest();
-
-  const generatedHash = crypto
-    .createHmac("sha256", secretKey)
-    .update(dataCheckString)
-    .digest("hex");
-
-  const valid = crypto.timingSafeEqual(
-    Buffer.from(generatedHash, "utf8"),
-    Buffer.from(hash, "utf8")
-  );
-
-  if (!valid) {
-    return { ok: false, error: "initData signature mismatch" };
-  }
-
   try {
+    if (!initDataRaw || typeof initDataRaw !== "string") {
+      return { ok: false, error: "initData is required" };
+    }
+
+    const params = new URLSearchParams(initDataRaw);
+    const hash = params.get("hash");
+    const authDateRaw = params.get("auth_date");
+    const userRaw = params.get("user");
+
+    if (!hash || !authDateRaw || !userRaw) {
+      return { ok: false, error: "Invalid initData payload" };
+    }
+
+    // Reject malformed hash early to avoid timingSafeEqual length exceptions.
+    if (!/^[a-fA-F0-9]{64}$/.test(hash)) {
+      return { ok: false, error: "initData signature mismatch" };
+    }
+
+    const authDate = Number(authDateRaw);
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    if (!Number.isFinite(authDate) || nowSeconds - authDate > AUTH_MAX_AGE_SECONDS) {
+      return { ok: false, error: "initData expired" };
+    }
+
+    const dataCheckString = Array.from(params.entries())
+      .filter(([key]) => key !== "hash")
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, value]) => `${key}=${value}`)
+      .join("\n");
+
+    const secretKey = crypto
+      .createHmac("sha256", "WebAppData")
+      .update(config.botToken)
+      .digest();
+
+    const generatedHash = crypto
+      .createHmac("sha256", secretKey)
+      .update(dataCheckString)
+      .digest("hex");
+
+    const valid = crypto.timingSafeEqual(
+      Buffer.from(generatedHash, "utf8"),
+      Buffer.from(hash.toLowerCase(), "utf8")
+    );
+
+    if (!valid) {
+      return { ok: false, error: "initData signature mismatch" };
+    }
+
     const user = JSON.parse(userRaw);
     return {
       ok: true,
       telegramUserId: String(user?.id ?? "")
     };
   } catch {
-    return { ok: false, error: "initData user payload is invalid" };
+    return { ok: false, error: "Invalid initData payload" };
   }
 }
 

@@ -9,19 +9,16 @@ import "./firebase.js";
 const app = express();
 
 app.use(express.json());
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || config.allowedOrigins.includes(origin)) {
-        callback(null, true);
-        return;
-      }
-      callback(new Error("CORS blocked for this origin"));
-    },
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"]
-  })
-);
+
+const corsOptions = {
+  origin: true,
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.get("/health", (_req, res) => {
   res.json({
