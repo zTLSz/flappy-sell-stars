@@ -4,4 +4,8 @@ import { registerPaymentHandlers } from "./handlers/payments.js";
 
 export const bot = new Bot(config.botToken);
 
+bot.catch((error) => {
+  console.error("Bot update error", error.error);
+});
+
 registerPaymentHandlers(bot);

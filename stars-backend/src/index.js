@@ -68,6 +68,8 @@ function resolveWebhookUrl() {
 }
 
 async function bootstrap() {
+  await bot.init();
+
   const webhookUrl = resolveWebhookUrl();
   if (webhookUrl) {
     await bot.api.setWebhook(webhookUrl, {
