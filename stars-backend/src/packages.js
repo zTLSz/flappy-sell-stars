@@ -1,38 +1,31 @@
 export const TOKEN_PACKAGES = [
   {
-    id: "pack_100",
-    tokens: 100,
+    id: "pack_10",
+    tokens: 10,
     starsPrice: 1,
-    label: "100 токенов",
-    description: "100 игровых токенов"
+    label: "10 tokens",
+    description: "10 in-game tokens"
   },
   {
-    id: "pack_500",
-    tokens: 500,
-    starsPrice: 5,
-    label: "500 токенов",
-    description: "500 игровых токенов"
-  },
-  {
-    id: "pack_1500",
-    tokens: 1500,
+    id: "pack_150",
+    tokens: 150,
     starsPrice: 10,
-    label: "1500 токенов",
-    description: "1500 игровых токенов"
+    label: "150 tokens",
+    description: "150 in-game tokens"
   },
   {
-    id: "pack_5000",
-    tokens: 5000,
-    starsPrice: 25,
-    label: "5000 токенов",
-    description: "5000 игровых токенов"
-  },
-  {
-    id: "pack_15000",
-    tokens: 15000,
+    id: "pack_900",
+    tokens: 900,
     starsPrice: 50,
-    label: "15000 токенов",
-    description: "15000 игровых токенов"
+    label: "900 tokens",
+    description: "900 in-game tokens"
+  },
+  {
+    id: "pack_2000",
+    tokens: 2000,
+    starsPrice: 100,
+    label: "2000 tokens",
+    description: "2000 in-game tokens"
   }
 ];
 
